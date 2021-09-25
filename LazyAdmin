@@ -1,0 +1,259 @@
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''
+'' 		 Try Hack Me : LazyAdmin
+'' 
+''
+''		Try Hack Me , My User Name : Lime1O1
+'' 
+''
+''		Phone : 01026102300
+''
+''		Email : Lime1O1Red@gmail.com 
+''
+''		Facebook : https://www.facebook.com/profile.php?id=100070215322755 
+''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+
+
+#############################################################################################
+
+Overview : 
+
+	lazyadmin is a fun easy rated CTF room on TryHackMe.
+
+
+###############################################################################################
+
+
+
+Nmap :
+
+	I deployed the machine and was given the target IP 10.10.86.223. I started a NMAP scan to check the available ports.
+
+		$  sudo  nmap -sV -sC 10.10.197.172
+
+
+########################################################################################################################
+#												Nmap OUTBUT 
+########################################################################################################################
+
+nmap -sV -sS -A 10.10.62.128 
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-05-31 13:14 SAST
+Nmap scan report for 10.10.62.128
+Host is up (0.19s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.8 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 49:7c:f7:41:10:43:73:da:2c:e6:38:95:86:f8:e0:f0 (RSA)
+|   256 2f:d7:c4:4c:e8:1b:5a:90:44:df:c0:63:8c:72:ae:55 (ECDSA)
+|_  256 61:84:62:27:c6:c3:29:17:dd:27:45:9e:29:cb:90:5e (ED25519)
+80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Apache2 Ubuntu Default Page: It works
+No exact OS matches for host (If you know what OS is running on it, see https://nmap.org/submit/ ).
+TCP/IP fingerprint:
+OS:SCAN(V=7.91%E=4%D=5/31%OT=22%CT=1%CU=37293%PV=Y%DS=2%DC=T%G=Y%TM=60B4C52
+OS:5%P=x86_64-pc-linux-gnu)SEQ(SP=FF%GCD=1%ISR=107%TI=Z%CI=Z%II=I%TS=A)SEQ(
+OS:SP=101%GCD=1%ISR=108%TI=Z%CI=Z%TS=A)OPS(O1=M506ST11NW7%O2=M506ST11NW7%O3
+OS:=M506NNT11NW7%O4=M506ST11NW7%O5=M506ST11NW7%O6=M506ST11)WIN(W1=68DF%W2=6
+OS:8DF%W3=68DF%W4=68DF%W5=68DF%W6=68DF)ECN(R=Y%DF=Y%T=40%W=6903%O=M506NNSNW
+OS:7%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=AS%RD=0%Q=)T2(R=N)T3(R=N)T4(R=Y%DF
+OS:=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=
+OS:%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(R=Y%DF=Y%T=40%W=
+OS:0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%T=40%IPL=164%UN=0%RIPL=G%RID=G%RI
+OS:PCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD=S)
+
+Network Distance: 2 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Cool ssh and http. That's got some useful info for us. So while I run a gobuster scan I'm going to go look at the website.
+
+So the actual website shows us nothing interesting but when we look at the code we can see this:
+
+
+
+
+
+	''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+	2 Ports open:
+
+		22 - SSH - OpenSSH 7.2p2 Ubuntu
+		80 - HTTP - Apache web server version 2.4.18  => 
+
+				
+				I also ran a full port scan but no additional ports were found using :  nmap -p- .
+
+	
+	##################################################################################################################################
+
+		Enumeration :
+					
+			Opening the webpage just provides a default apache page, I checked the source code and tried robots.txt but didn’t find anything so ran a gobuster. Straight away I got a hit for ‘/content’.
+
+
+				$ gobuster -u -w /home/lime/Desktop/wordlist/directory-list-2.3-medium.txt 
+
+
+#################################################################################################################################
+#									GOBUSTER OUTBUT 
+#################################################################################################################################
+
+				=====================================================
+				Gobuster v2.0.1              OJ Reeves (@TheColonial)
+				=====================================================
+				[+] Mode         : dir
+				[+] Url/Domain   : http://10.10.197.172/
+				[+] Threads      : 10
+				[+] Wordlist     : /home/lime/Desktop/wordlist/directory-list-2.3-medium.txt
+				[+] Status codes : 200,204,301,302,307,403
+				[+] Timeout      : 10s
+				=====================================================
+				2021/09/25 19:09:40 Starting gobuster
+				=====================================================
+				/content (Status: 301)
+
+
+
+The content page has this on it:
+
+
+Welcome to SweetRice - Thank your for install SweetRice as your website management system.
+This site is building now , please come late.
+
+If you are the webmaster,please go to Dashboard -> General -> Website setting
+
+and uncheck the checkbox "Site close" to open your website.
+
+More help at Tip for Basic CMS SweetRice installed
+
+so when I run a searchsploit sweetrice I got:
+
+
+---------------------------------------------------------------------------------- ---------------------------------
+ Exploit Title                                                                    |  Path
+---------------------------------------------------------------------------------- ---------------------------------
+SweetRice 0.5.3 - Remote File Inclusion                                           | php/webapps/10246.txt
+SweetRice 0.6.7 - Multiple Vulnerabilities                                        | php/webapps/15413.txt
+SweetRice 1.5.1 - Arbitrary File Download                                         | php/webapps/40698.py
+SweetRice 1.5.1 - Arbitrary File Upload                                           | php/webapps/40716.py
+SweetRice 1.5.1 - Backup Disclosure                                               | php/webapps/40718.txt
+SweetRice 1.5.1 - Cross-Site Request Forgery                                      | php/webapps/40692.html
+SweetRice 1.5.1 - Cross-Site Request Forgery / PHP Code Execution                 | php/webapps/40700.html
+SweetRice < 0.6.4 - 'FCKeditor' Arbitrary File Upload                             | php/webapps/14184.txt
+---------------------------------------------------------------------------------- ---------------------------------
+Shellcodes: No Results
+		
+
+			Navigating to ‘http://10.10.86.223/content’ appears to be another default page but this time revealing the server is running SweetRice CMS.
+
+			' So browsing at /content/ we can see a page of Basic CMS SweetRice. '
+
+			'What is hidden inside /content' 
+
+			$ gobuster -u 10.10.197.172/content  -w wordlist 
+
+
+################################################################################################################################
+#						GOBUSTER OUTBUT 
+################################################################################################################################
+
+				=====================================================
+				Gobuster v2.0.1              OJ Reeves (@TheColonial)
+				=====================================================
+				[+] Mode         : dir
+				[+] Url/Domain   : http://10.10.197.172/content/
+				[+] Threads      : 10
+				[+] Wordlist     : /home/lime/Desktop/wordlist/common.txt
+				[+] Status codes : 200,204,301,302,307,403
+				[+] Timeout      : 10s
+				=====================================================
+				2021/09/25 19:17:38 Starting gobuster
+				=====================================================
+				/.hta (Status: 403)
+				/.htaccess (Status: 403)
+				/.htpasswd (Status: 403)
+				/_themes (Status: 301)
+				/as (Status: 301)
+				/attachment (Status: 301)
+				/images (Status: 301)
+				/inc (Status: 301)
+				/index.php (Status: 200)
+				/js (Status: 301)
+
+
+
+				IN URL : http://10.10.197.172/content/as/ 
+				we have login page . 
+
+					
+				Opening it, we are presented simply with the text “1.5.1”, which could be a version number. Maybe? With that in hand, let’s check exploit-db for any CVEs:
+							It turns out that 1.5.1 is a valid version number for SweetRice. There are 5 CVE’s for this version. One is an arbitrary file upload, which seems to be the most promising. There is a exploit already available in the form of a python script, but inspecting the code it appears to require authentication first. We don’t have any credentials at the moment, but let’s hold on to that in case we come across any.
+
+							Taking a look at the Backup Disclosure, we see that this version of SweetRice also has something called “mysql bakup” that can be 
+							downloaded from /content/inc/mysql_bakup. Let’s go see what’s there:
+
+
+
+				In Url : http://10.10.197.172/content/inc/mysql_backup/
+
+
+					Opening it up in a text editor and scanning though, there appears to be some credentials with a username of “manager” and a hashed password:
+
+					Let’s toss that hash into hash-id.py, which you can grab here.
+
+					Looks like md5. Knowing that, let’s try to crack it using john the ripper and the rockyou password list. Here, I’ve saved the hash from the sql script into a file called sqlhash:
+
+
+
+And as has a log in, inc has a file structure
+
+And in the /inc/ subdirectory there was a mysql backup folder. And within this directory after looking carefully there's a hashed password and a username
+
+
+manager:42f749ade7f9e195bf475f37a44cafcb
+
+
+and the password is cracked, I used John for it and if you are stuck 
+	
+	$ john file.hash --wordlist=/usr/share/wordlists/rockyou.txt --format=Raw-MD5
+
+
+
+Now we have some login credentials for the as page that we can use to get in.
+
+Now that we're in we can upload our own files >:) Which means time for a reverse shell. I'm using one from pentest monkey.
+
+Well couldn't upload a .php file but I did upload a .php5 file and so accessing it through /inc/rvrShell.php5 I got my shell connection.
+
+And with that connection we can cd and find the user flag.
+
+
+. 
+
+
+
+Running sudo -l gives us:
+
+sudo -l
+Matching Defaults entries for www-data on THM-Chal:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on THM-Chal:
+    (ALL) NOPASSWD: /usr/bin/perl /home/itguy/backup.pl
+
+and gtfobins gives us a way to gain admin privledges
+
+So backup.pl runs another .sh script which in turn can be ran as sudo.
+	The other script already has a reverse shell in it so if you change the IP to your Ip and run the backup.pl file using sudo, you will gain a root shell on the port you netcat listener gets the reverse shell on.
+
+So to sum up backup.pl runs copy.sh as sudo
+copy.pl has a reverse shell that you put your IP in
+set up a listener on the port of copy.sh
+run as sudo
+become root.
+
+I've left out file paths for brevity sake
